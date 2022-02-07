@@ -9,6 +9,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 
 
@@ -17,7 +18,14 @@ class MainActivity : AppCompatActivity() {
     /**
      * Inject 创建直接创建对象的接口
      */
+    /*@Inject
+    lateinit var user:User*/
+
+    /**
+     * 这里写上@Named("age28")，就说明调用UserModule中的 @Named("age28")
+     */
     @Inject
+    @Named("age28")
     lateinit var user:User
 
 
@@ -74,17 +82,39 @@ class MainActivity : AppCompatActivity() {
 /**
  * @Module，修饰的类中所定义的有@Provides修饰的方法提供
  */
-@Module
+/*@Module
 class UserModule{
     @Singleton
     @Provides
     fun provideUser():User
     {
-        /**
+        *//**
          * 说明了，调用provideUser()后，就表示初始化的构造值为User(28)
-         */
+         *//*
         return User(28)
     }
+}*/
+
+@Module
+class UserModule
+{
+    @Provides
+    fun provideUserCommon():User{
+        return User(18)
+    }
+
+    @Provides
+    @Named("age28")
+    fun provideUserYoung():User{
+        return  User(28)
+    }
+
+    @Provides
+    @Named("age38")
+    fun provideUserOld():User{
+        return User(38)
+    }
+
 }
 
 
@@ -111,11 +141,23 @@ class User @Inject constructor(var age:Int)
     }
 }
 
-class Dog @Inject constructor(var owner:User)
+/*class Dog @Inject constructor(var owner:User)
 {
     lateinit var name: String
     override fun toString(): String {
         return "Dog class:$name, Owner:${owner.name}"
+    }
+}*/
+
+/**
+ * 因为这里constructor(@Named("age38") var owner: User)是调用了@Named("age38")
+ * 所以当前的owner: User被调用时，会用上@Named("age38")对应的UserModule中fun provideUserOld()
+ */
+class Dog @Inject constructor(@Named("age38") var owner: User)
+{
+    lateinit var name: String
+    override fun toString(): String {
+        return "Dog:$name, User:${owner.name} User Age:${owner.age}"
     }
 }
 
