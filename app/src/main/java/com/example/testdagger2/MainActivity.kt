@@ -20,6 +20,12 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var user:User
 
+
+    /**
+     * Inject 再创建直接创建对象的接口
+     */
+    @Inject lateinit var dog:Dog
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -36,6 +42,24 @@ class MainActivity : AppCompatActivity() {
          */
         user.name="Dagger hello world"
         Toast.makeText(this, user.name, Toast.LENGTH_SHORT).show()
+
+
+        /**
+         * 这里就说明了，不用初始化，也可以直接调用
+         */
+        dog.name="it is dog name"
+
+        /**
+         * Dog @Inject constructor(var owner:User)
+         * 的owner被赋值了
+         */
+        dog.owner.name="主人"
+        Log.e("TAG", "dog.name: "+dog.name )
+
+        /**
+         * dog.toString(),在这里就说明了会调用 class Dog 的 fun toString()
+         */
+        Log.e("TAG", "dog: ${dog.toString()}")
     }
 
 }
@@ -49,6 +73,14 @@ class User @Inject constructor()
     var name:String?=null
     override fun toString(): String {
         return "Name:$name"
+    }
+}
+
+class Dog @Inject constructor(var owner:User)
+{
+    lateinit var name: String
+    override fun toString(): String {
+        return "Dog class:$name, Owner:${owner.name}"
     }
 }
 
