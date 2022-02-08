@@ -1,10 +1,9 @@
 package com.example.testdagger2
 
-import android.graphics.ColorSpace
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -26,13 +25,14 @@ class MainActivity : AppCompatActivity() {
      */
     @Inject
     @Named("age28")
-    lateinit var user:User
+    lateinit var user: User
 
 
     /**
      * Inject 再创建直接创建对象的接口
      */
-    @Inject lateinit var dog:Dog
+    @Inject
+    lateinit var dog: Dog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         /**
          *  这里的DaggerMainComponent
-         *  用MainComponent 生成 Dagger对象
+         *  生成 interface MainComponent 的 Dagger对象
          */
         DaggerMainComponent.builder().build().inject(this)
 
@@ -48,33 +48,32 @@ class MainActivity : AppCompatActivity() {
          *  然后这里就可以直接使用了，而不需要再去新建成对象了。
          *  目的就是防止多次创建对象，而让程序简洁。
          */
-        user.name="Dagger hello world"
+        user.name = "Dagger hello world"
         Toast.makeText(this, user.name, Toast.LENGTH_SHORT).show()
 
 
         /**
          * 这里就说明了，不用初始化，也可以直接调用
          */
-        dog.name="it is dog name"
+        dog.name = "it is dog name"
 
         /**
          * Dog @Inject constructor(var owner:User)
          * 的owner被赋值了
          */
-        dog.owner.name="主人"
-        Log.e("TAG", "dog.name: "+dog.name )
+        dog.owner.name = "主人"
+        Log.e("TAG", "dog.name: " + dog.name)
 
         /**
          * dog.toString(),在这里就说明了会调用 class Dog 的 fun toString()
          */
-        Log.e("TAG", "dog: ${dog.toString()}")
-
+        Log.e("TAG", "dog: $dog")
 
 
         /**
          * dog.toString(),在这里就说明了会调用 class Dog 的 fun toString()
          */
-        Log.e("TAG", "user 调用override fun toString(): : ${user.toString()}")
+        Log.e("TAG", "user 调用override fun toString(): : $user")
     }
 
 }
@@ -89,29 +88,28 @@ class UserModule{
     fun provideUser():User
     {
         *//**
-         * 说明了，调用provideUser()后，就表示初始化的构造值为User(28)
-         *//*
+ * 说明了，调用provideUser()后，就表示初始化的构造值为User(28)
+ *//*
         return User(28)
     }
 }*/
 
 @Module
-class UserModule
-{
+class UserModule {
     @Provides
-    fun provideUserCommon():User{
+    fun provideUserCommon(): User {
         return User(18)
     }
 
     @Provides
     @Named("age28")
-    fun provideUserYoung():User{
-        return  User(28)
+    fun provideUserYoung(): User {
+        return User(28)
     }
 
     @Provides
     @Named("age38")
-    fun provideUserOld():User{
+    fun provideUserOld(): User {
         return User(38)
     }
 
@@ -133,9 +131,8 @@ class UserModule
  * 在User @Inject constructor()中，加上构造值(var age:Int)，
  * 需要在interface MainComponent中，加上@Component(modules = [UserModule::class])
  */
-class User @Inject constructor(var age:Int)
-{
-    lateinit var name:String
+class User @Inject constructor(var age: Int) {
+    lateinit var name: String
     override fun toString(): String {
         return "Name:$name, Age:$age"
     }
@@ -153,8 +150,7 @@ class User @Inject constructor(var age:Int)
  * 因为这里constructor(@Named("age38") var owner: User)是调用了@Named("age38")
  * 所以当前的owner: User被调用时，会用上@Named("age38")对应的UserModule中fun provideUserOld()
  */
-class Dog @Inject constructor(@Named("age38") var owner: User)
-{
+class Dog @Inject constructor(@Named("age38") var owner: User) {
     lateinit var name: String
     override fun toString(): String {
         return "Dog:$name, User:${owner.name} User Age:${owner.age}"
@@ -173,13 +169,12 @@ public interface MainComponent{
 /**
  * 在User @Inject constructor()中，加上构造值，
  * 需要在interface MainComponent中，加上@Component(modules = [UserModule::class])
- */
-@Singleton
-/**
+ *
  * @Component(modules = [UserModule::class])，
  * 调了provideUser()，所以初始化的构造值为User(28)
  */
+@Singleton
 @Component(modules = [UserModule::class])
-interface MainComponent{
+interface MainComponent {
     fun inject(activity: MainActivity)
 }
