@@ -8,7 +8,7 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import javax.inject.Inject
-import javax.inject.Named
+import javax.inject.Qualifier
 import javax.inject.Singleton
 
 
@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity() {
      * 这里写上@Named("age28")，就说明调用UserModule中的 @Named("age28")
      */
     @Inject
-    @Named("age28")
+    @YoungUser
     lateinit var user: User
 
 
@@ -87,12 +87,28 @@ class UserModule{
     @Provides
     fun provideUser():User
     {
-        *//**
+        */
+/**
  * 说明了，调用provideUser()后，就表示初始化的构造值为User(28)
  *//*
         return User(28)
     }
 }*/
+
+/**
+ * 申明注解 YoungUser
+ */
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class YoungUser
+
+
+/**
+ * 申明注解 OldUser
+ */
+@Qualifier
+@Retention(AnnotationRetention.RUNTIME)
+annotation class OldUser
 
 @Module
 class UserModule {
@@ -101,14 +117,20 @@ class UserModule {
         return User(18)
     }
 
+    /**
+     * 定义注解 YoungUser 的作用，就是使用provideUserYoung()
+     */
     @Provides
-    @Named("age28")
+    @YoungUser
     fun provideUserYoung(): User {
         return User(28)
     }
 
+    /**
+     * 定义注解 OldUser 的作用，就是使用provideUserOld()
+     */
     @Provides
-    @Named("age38")
+    @OldUser
     fun provideUserOld(): User {
         return User(38)
     }
@@ -150,7 +172,7 @@ class User @Inject constructor(var age: Int) {
  * 因为这里constructor(@Named("age38") var owner: User)是调用了@Named("age38")
  * 所以当前的owner: User被调用时，会用上@Named("age38")对应的UserModule中fun provideUserOld()
  */
-class Dog @Inject constructor(@Named("age38") var owner: User) {
+class Dog @Inject constructor(@OldUser var owner: User) {
     lateinit var name: String
     override fun toString(): String {
         return "Dog:$name, User:${owner.name} User Age:${owner.age}"
